@@ -49,40 +49,44 @@ calc_price(I, N, P):- prop(I, price, IP), P is (IP*N).
 % basket_price(time, basket id, price): get the price P of all items in basket with id ID at time T
 basket_price(T, ID, P):- basket(ID), findall(IP, (basket_has(T, ID, I, N), calc_price(I, N, IP)), L), sumlist(L, P).
 
-%% basket_has(T, ID, P, N):- TODO.
+%% basket_has(T, ID, I, N):- TODO.
+%% basket_has(T, BID, IN, N):- grabbed(T0, BID, _, IN, N), T0 =< T, T0 =>0. 
 
 basket_has(0, b1, apple, 2).
 basket_has(0, b1, date, 1).
 
 % can_buy(time, basket id, shelve id): a person with basket BID can buy from the shelf SID at time T
-can_buy(T, BID, SID):- measurement(BID, _, T, BP), measurement(SID, _, T, SP), m_distance(BP,SP,MD), MD is 1.
+can_buy(T, BID, SID):- in_scope(T), measurement(BID, _, T, BP), measurement(SID, _, T, SP), m_distance(BP,SP,MD), MD is 1.
 
 % m_distance(position 1, position 2, manhattan distance): manhattan distance MD from position 1 pos(X1,Y1) to position 2 pos(X2,Y2)
 m_distance(pos(X1,Y1),pos(X2,Y2),MD):- X is (X1-X2), abs(X,XD), Y is (Y1-Y2), abs(Y,YD), MD is (XD + YD).
 
 % removed_from_shelf(time, shelf id, item name, number of items): N items woth name IN were removed from shelf with id SID at time T
-removed_from_shelf(T, SID, IN, N):- T>0, T0 is T - 1, shelf_item_count(T, SID, IN, SN), shelf_item_count(T0, SID, IN, SN0), N is (SN0-SN), N>0.
+removed_from_shelf(T, SID, IN, N):- in_scope(T), T>0, T0 is T - 1, shelf_item_count(T, SID, IN, SN), shelf_item_count(T0, SID, IN, SN0), N is (SN0-SN), N>0.
 
 % removed_from_shelf(time, shelf id, item name, number of items): N items woth name IN were removed from shelf with id SID at time T
-returned_to_shelf(T, SID, IN, N):- T>0, T0 is T - 1, shelf_item_count(T, SID, IN, SN), shelf_item_count(T0, SID, IN, SN0), N is (SN-SN0), N>0.
+returned_to_shelf(T, SID, IN, N):- in_scope(T), T>0, T0 is T - 1, shelf_item_count(T, SID, IN, SN), shelf_item_count(T0, SID, IN, SN0), N is (SN-SN0), N>0.
 
 % calc_weight(item, number, price): calculates the weigth W of N items of item I
 calc_weight(I, N, W):- prop(I, weight, IW), W is (IW*N).
 
 % weight_change(time, basket id, weight): basket with id BID had a change of weight W at time T
-weight_change(T, BID, W):- T>0, T0 is T - 1, measurement(BID, BW, T, _), measurement(BID, BW0, T0, _), W is (BW-BW0).
+weight_change(T, BID, W):- in_scope(T), T>0, T0 is T - 1, measurement(BID, BW, T, _), measurement(BID, BW0, T0, _), W is (BW-BW0).
 
 % grabbed(time, basket id, shelf id, item name, number of items): basket with is BID grabbed N items with name IN from shelf with id SID at time T
-grabbed(T, BID, SID, IN, N):- removed_from_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC>0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
+grabbed(T, BID, SID, IN, N):- in_scope(T), removed_from_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC>0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
 
 % grabbed(time, basket id, shelf id, item name, number of items): basket with is BID returned N items with name IN from shelf with id SID at time T
-returned(T, BID, SID, IN, N):- returned_to_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC<0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
+returned(T, BID, SID, IN, N):- in_scope(T), returned_to_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC<0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
 
 % checkout_time(basket id, time): the checkout time T for basket BID
-checkout_time(BID, T):- basket(BID), exit(pos(X,Y)), measurement(BID, _, T, pos(X,Y)).
+checkout_time(BID, T):- in_scope(T), basket(BID), exit(pos(X,Y)), measurement(BID, _, T, pos(X,Y)).
 
 % checkout_price(basket id, price): the checkout price P for basket BID
 checkout_price(BID, P):- basket(BID), checkout_time(BID, CTime), ChkOut_Time is CTime, basket_price(ChkOut_Time, BID, P).
+
+%in_scope(time): time is in the application time restrictions
+in_scope(T):- between(0,100,T).
 
 % Story
 % mat a has weight 0 at time 0 at pos(0,0)
