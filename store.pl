@@ -47,7 +47,7 @@ store_item_count(T, IN, N):- findall(SN, shelf_item_count(T, _, IN, SN), L), sum
 calc_price(I, N, P):- prop(I, price, IP), P is (IP*N).
 
 % basket_price(time, basket id, price): get the price P of all items in basket with id ID at time T
-basket_price(T, ID, P):- basket(ID), findall(IP, (basket_has(T, ID, IN, N), prop(I, name, IN), calc_price(I, N, IP)), L), sumlist(L, P).
+basket_price(T, ID, P):- in_scope(T), basket(ID), findall(IP, (basket_has(T, ID, IN, N), prop(I, name, IN), calc_price(I, N, IP)), L), sumlist(L, P).
 
 % basket_has(T, BID, IN, N) is true if at time T the basket with mat_id BID has N number of item with name IN
 basket_has(T, BID, IN, N) :- in_scope(T), basket(BID), prop(_, name, IN), findall(N0, basket_has_helper(T, BID, IN, N0), L), sumlist(L, N), N>0.
@@ -79,14 +79,14 @@ grabbed(T, BID, SID, IN, N):- in_scope(T), removed_from_shelf(T, SID, IN, N), ca
 returned(T, BID, SID, IN, N):- in_scope(T), returned_to_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC<0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
 
 % checkout_time(basket id, time): the checkout time T for basket BID
-%% checkout_time(BID, T):- in_scope(T), basket(BID), exit(pos(X,Y)), measurement(BID, _, T, pos(X,Y)).
 checkout_time(BID, T):- in_scope(T), basket(BID), exit(Pos), findall(T0, (measurement(BID, _, T0, Pos), in_scope(T0)), L), min_list(L,T).
 
 % checkout_price(basket id, price): the checkout price P for basket BID
 checkout_price(BID, P):- basket(BID), checkout_time(BID, CTime), ChkOut_Time is CTime, basket_price(ChkOut_Time, BID, P).
 
 %in_scope(time): time is in the application time restrictions
-in_scope(T):- between(0,100,T).
+in_scope(T):- findall(T0, measurement_raw(_, _, T0, _), L), min_list(L,Min), max_list(L,Max), between(Min, Max, T).
+
 
 % Story
 % mat a has weight 0 at time 0 at pos(0,0)
