@@ -59,14 +59,19 @@ m_distance(pos(X1,Y1),pos(X2,Y2),MD):- X is (X1-X2), abs(X,XD), Y is (Y1-Y2), ab
 % removed_from_shelf(time, shelf id, item name, number of items): N items woth name IN were removed from shelf with id SID at time T
 removed_from_shelf(T, SID, IN, N):- T>0, T0 is T - 1, shelf_item_count(T, SID, IN, SN), shelf_item_count(T0, SID, IN, SN0), N is (SN0-SN), N>0.
 
+% removed_from_shelf(time, shelf id, item name, number of items): N items woth name IN were removed from shelf with id SID at time T
+returned_to_shelf(T, SID, IN, N):- T>0, T0 is T - 1, shelf_item_count(T, SID, IN, SN), shelf_item_count(T0, SID, IN, SN0), N is (SN-SN0), N>0.
+
 % calc_weight(item, number, price): calculates the weigth W of N items of item I
 calc_weight(I, N, W):- prop(I, weight, IW), W is (IW*N).
 
 % weight_change(time, basket id, weight): basket with id BID had a change of weight W at time T
-weight_change(T, BID, W):- T>0, T0 is T - 1, measurement(BID, BW, T, _), measurement(BID, BW0, T0, _), W is (BW-BW0), W>0.
+weight_change(T, BID, W):- T>0, T0 is T - 1, measurement(BID, BW, T, _), measurement(BID, BW0, T0, _), W is (BW-BW0).
 
 % grabbed(time, basket id, shelf id, item name, number of items): 
-grabbed(T, BID, SID, IN, N):- removed_from_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, W), prop(I, name, IN), can_buy(T, BID, SID). 
+grabbed(T, BID, SID, IN, N):- removed_from_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC>0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W). 
+
+returned(T, BID, SID, IN, N):- returned_to_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC<0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
 
 % Story
 % mat a has weight 0 at time 0 at pos(0,0)
