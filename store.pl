@@ -30,20 +30,24 @@ shelf(s4, date).
 shelf(s5, apple).
 shelf(s6, carrot).
 
+% basket(id)
+basket(b1).
+basket(b2).
+
 % predicates
 item(N, W, P) :- prop(X, name, N), prop(X, weight, W), prop(X, price, P).
 
-% shelf_item_count(time, id, item name, number) : gets the number N of items with name IN in shelf with id ID at time T 
+% shelf_item_count(time, id, item name, number) : gets the number N of items with name IN in shelf with id ID at time T
 shelf_item_count(T, ID, IN, N):- shelf(ID, I),  measurement(ID, W, T, _), prop(I, weight, IW),  N is (W / IW), prop(I, name, IN).
 
 % store_item_count(time, item name, number) : gets the number N of items with name IN remaining in the shelfs at time T
-store_item_count(T, IN, N):- findall(SN, shelf_item_count(T, _, IN, SN), L), sumlist(L, N). 
+store_item_count(T, IN, N):- findall(SN, shelf_item_count(T, _, IN, SN), L), sumlist(L, N).
 
 % calc_price(item, number, price): calculates the price P of N items of item I
 calc_price(I, N, P):- prop(I, price, IP), P is (IP*N).
 
 % basket_price(time, basket id, price): get the price P of all items in basket with id ID at time T
-basket_price(T, ID, P):- findall(IP, (basket_has(T, ID, I, N), calc_price(I, N, IP)), L), sumlist(L, P).
+basket_price(T, ID, P):- basket(ID), findall(IP, (basket_has(T, ID, I, N), calc_price(I, N, IP)), L), sumlist(L, P).
 
 %% basket_has(T, ID, P, N):- TODO.
 
@@ -69,10 +73,16 @@ calc_weight(I, N, W):- prop(I, weight, IW), W is (IW*N).
 weight_change(T, BID, W):- T>0, T0 is T - 1, measurement(BID, BW, T, _), measurement(BID, BW0, T0, _), W is (BW-BW0).
 
 % grabbed(time, basket id, shelf id, item name, number of items): basket with is BID grabbed N items with name IN from shelf with id SID at time T
-grabbed(T, BID, SID, IN, N):- removed_from_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC>0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W). 
+grabbed(T, BID, SID, IN, N):- removed_from_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC>0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
 
 % grabbed(time, basket id, shelf id, item name, number of items): basket with is BID returned N items with name IN from shelf with id SID at time T
 returned(T, BID, SID, IN, N):- returned_to_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC<0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
+
+% checkout_time(basket id, time): the checkout time T for basket BID
+checkout_time(BID, T):- basket(BID), exit(pos(X,Y)), measurement(BID, _, T, pos(X,Y)).
+
+% checkout_price(basket id, price): the checkout price P for basket BID
+checkout_price(BID, P):- basket(BID), checkout_time(BID, CTime), ChkOut_Time is CTime, basket_price(ChkOut_Time, BID, P).
 
 % Story
 % mat a has weight 0 at time 0 at pos(0,0)
@@ -106,15 +116,18 @@ measurement_raw(b1, 40, 11, pos(3,5)).
 measurement_raw(b1, 40, 12, pos(4,5)).
 measurement_raw(b1, 40, 13, pos(5,5)).
 
+measurement_raw(b2, 0, 0, pos(0,0)).
+measurement_raw(b2, 0, 3, pos(2,2)).
+measurement_raw(b2, 0, 7, pos(5,5)).
+
 measurement_raw(_, _, -1, pos(-1,-1)).
-
-
 
 % Use measurement for actually retrieving values
 measurement(X, W, T, P):- measurement_raw(X, W, T, P).
-measurement(X, W, T, P):- T0 is T - 1, T >= -1,  measurement(X, W, T0, P), not(measurement_raw(X, _, T, _)).
+measurement(X, W, T, P):- not(measurement_raw(X, _, T, _)), T0 is T - 1, T >= -1,  measurement(X, W, T0, P).
 
 pos_in_store(X, Y):- sizeX(XS), MAX_X is XS, sizeY(YS), MAX_Y is YS, between(0,MAX_X,X), between(0,MAX_Y,Y).
 pos_in_store(pos(X, Y)):- pos_in_store(X,Y).
 
-is_in_store(M):- measurement(M, _, _, P), pos_in_store(P).
+is_in_store(M):- basket(M), measurement(M, _, _, P), pos_in_store(P).
+is_in_store(M):- shelf(M, _), measurement(M, _, _, P), pos_in_store(P).
