@@ -49,11 +49,13 @@ calc_price(I, N, P):- prop(I, price, IP), P is (IP*N).
 % basket_price(time, basket id, price): get the price P of all items in basket with id ID at time T
 basket_price(T, ID, P):- basket(ID), findall(IP, (basket_has(T, ID, I, N), calc_price(I, N, IP)), L), sumlist(L, P).
 
-%% basket_has(T, ID, I, N):- TODO.
-%% basket_has(T, BID, IN, N):- grabbed(T0, BID, _, IN, N), T0 =< T, T0 =>0. 
+% basket_has(T, BID, IN, N) is true if at time T the basket with mat_id BID has N number of item with name IN
+basket_has(T, BID, IN, N) :- in_scope(T), findall(N0, basket_has_helper(T, BID, IN, N0), L), sumlist(L, N).
+basket_has_helper(T, BID, IN, N) :- in_scope(T), grabbed(T0, BID, _, IN, N), T0 =< T.
+basket_has_helper(T, BID, IN, N) :- in_scope(T), returned(T0, BID, _, IN, N0), T0 =< T, N is (-N0).
 
-basket_has(0, b1, apple, 2).
-basket_has(0, b1, date, 1).
+% basket_has(0, b1, apple, 2).
+% basket_has(0, b1, date, 1).
 
 % can_buy(time, basket id, shelve id): a person with basket BID can buy from the shelf SID at time T
 can_buy(T, BID, SID):- in_scope(T), measurement(BID, _, T, BP), measurement(SID, _, T, SP), m_distance(BP,SP,MD), MD is 1.
@@ -121,6 +123,7 @@ measurement_raw(b1, 40, 12, pos(4,5)).
 measurement_raw(b1, 40, 13, pos(5,5)). % checkout
 
 % User 2 story
+measurement_raw(b2, 0, 0, pos(-1,-1)).
 measurement_raw(b2, 0, 10, pos(0,0)).
 measurement_raw(b2, 0, 11, pos(0,1)).
 measurement_raw(b2, 0, 12, pos(0,2)).
