@@ -33,6 +33,8 @@ shelf(s6, carrot).
 % basket(id)
 basket(b1).
 basket(b2).
+basket(b3).
+basket(b4).
 
 % predicates
 item(N, W, P) :- prop(X, name, N), prop(X, weight, W), prop(X, price, P).
@@ -58,11 +60,11 @@ basket_has_helper(T, BID, IN, N) :- in_scope(T), grabbed(T0, BID, _, IN, N), T0 
 basket_has_helper(T, BID, IN, N) :- in_scope(T), returned(T0, BID, _, IN, N0), T0 =< T, N is (-N0).
 
 basket_stole(T, BID, IN, N) :- in_scope(T), basket(BID), prop(_, name, IN), findall(N0, basket_stole_helper(T, BID, IN, N0), L), sumlist(L, N), N>0.
-basket_stole_helper(T, BID, IN, N) :- in_scope(T), stolen(T0, BID, _, IN, N), T0 =< T.
+basket_stole_helper(T, BID, IN, N) :- in_scope(T), stole(T0, BID, _, IN, N), T0 =< T.
 basket_stole_helper(T, BID, IN, N) :- in_scope(T), returned_stolen(T0, BID, _, IN, N0), T0 =< T, N is (-N0).
 
 % can_buy(time, basket id, shelve id): a person with basket BID can buy from the shelf SID at time T
-can_buy(T, BID, SID):- in_scope(T), measurement(BID, _, T, BP), measurement(SID, _, T, SP), m_distance(BP,SP,MD), MD is 1.
+can_buy(T, BID, SID):- basket(BID), shelf(SID, _), in_scope(T), measurement(BID, _, T, BP), measurement(SID, _, T, SP), m_distance(BP,SP,MD), MD is 1.
 
 % m_distance(position 1, position 2, manhattan distance): manhattan distance MD from position 1 pos(X1,Y1) to position 2 pos(X2,Y2)
 m_distance(pos(X1,Y1),pos(X2,Y2),MD):- X is (X1-X2), abs(X,XD), Y is (Y1-Y2), abs(Y,YD), MD is (XD + YD).
@@ -82,12 +84,12 @@ weight_change(T, BID, W):- in_scope(T), T>0, T0 is T - 1, measurement(BID, BW, T
 % grabbed(time, basket id, shelf id, item name, number of items): basket with is BID grabbed N items with name IN from shelf with id SID at time T
 grabbed(T, BID, SID, IN, N):- in_scope(T), removed_from_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC>0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
 
-stole(T, BID, SID, IN, N):- in_scope(T), removed_from_shelf(T, SID, IN, N), can_buy(T, BID, SID), not(grabbed(T, BID, SID, IN, N)).
+stole(T, BID, SID, IN, N):- in_scope(T), basket(BID), shelf(SID, _), removed_from_shelf(T, SID, IN, N), can_buy(T, BID, SID), not(grabbed(T, BID, SID, IN, N)).
 
 % grabbed(time, basket id, shelf id, item name, number of items): basket with is BID returned N items with name IN from shelf with id SID at time T
 returned(T, BID, SID, IN, N):- in_scope(T), returned_to_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC<0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
 
-returned_stolen(T, BID, SID, IN, N):- in_scope(T), returned_to_shelf(T, SID, IN, N), not(returned(T, BID, SID, IN, N)).
+returned_stolen(T, BID, SID, IN, N):- in_scope(T), basket(BID), shelf(SID, _), returned_to_shelf(T, SID, IN, N), not(returned(T, BID, SID, IN, N)).
 
 % checkout_time(basket id, time): the checkout time T for basket BID
 checkout_time(BID, T):- in_scope(T), basket(BID), exit(Pos), findall(T0, (measurement(BID, _, T0, Pos), in_scope(T0)), L), min_list(L,T).
