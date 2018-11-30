@@ -34,7 +34,15 @@ shelf(s6, carrot).
 item(N, W, P) :- prop(X, name, N), prop(X, weight, W), prop(X, price, P).
 
 % shelf_item_count(time, id, number) : gets the number of items in shelf with id ID at time T 
-shelf_item_count(T, ID, N):- shelf(ID, P),  measurement(ID, W, T, _), prop(P, weight, PW),  N is (W / PW).
+shelf_item_count(T, ID, PN, N):- shelf(ID, P),  measurement(ID, W, T, _), prop(P, weight, PW),  N is (W / PW), prop(P, name, PN).
+
+% store_product_count(time, product name, number) : gets the number N of products with product name PN remaining in the shelfs at time T
+store_product_count(T, PN, N):- findall(SN, shelf_product_count(T, PN, SN), L), sumlist(L, N). 
+
+% store_product_count(time, product name, number) : helper for store_product_count
+shelf_product_count(T, PN, N):- shelf_item_count(T, ID, PN, N), prop(P, name, PN), shelf(ID, P).
+
+
 
 % Story
 % mat a has weight 0 at time 0 at pos(0,0)
