@@ -82,7 +82,7 @@ weight_change(T, BID, W):- in_scope(T), T>0, T0 is T - 1, measurement(BID, BW, T
 % grabbed(time, basket id, shelf id, item name, number of items): basket with is BID grabbed N items with name IN from shelf with id SID at time T
 grabbed(T, BID, SID, IN, N):- in_scope(T), removed_from_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC>0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
 
-stole(T, BID, SID, IN, N):- in_scope(T), removed_from_shelf(T, SID, IN, N), can_buy(T, BID, SID), not(grabbed(T, BID, SID, IN, N)). 
+stole(T, BID, SID, IN, N):- in_scope(T), removed_from_shelf(T, SID, IN, N), can_buy(T, BID, SID), not(grabbed(T, BID, SID, IN, N)).
 
 % grabbed(time, basket id, shelf id, item name, number of items): basket with is BID returned N items with name IN from shelf with id SID at time T
 returned(T, BID, SID, IN, N):- in_scope(T), returned_to_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC<0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
@@ -169,41 +169,41 @@ measurement_raw(b2, 70, 50, pos(5,5)). % checkout
 
 % User 3 & 4
 measurement_raw(b3, 0,  9, pos(0,0)).
-measurement_raw(b3, 0, 10, pos(0,1)).
-measurement_raw(b3, 0, 11, pos(0,2)).
+measurement_raw(b3, 0, 10, pos(1,0)).
+measurement_raw(b3, 0, 11, pos(2,0)).
 measurement_raw(b4, 0, 11, pos(0,0)).
-measurement_raw(b3, 0, 12, pos(0,3)).
-measurement_raw(b4, 0, 12, pos(0,1)).
-measurement_raw(b3, 0, 13, pos(0,4)).
-measurement_raw(b4, 0, 13, pos(0,2)).
-measurement_raw(b3, 0, 14, pos(1,4)).
-measurement_raw(b4, 0, 14, pos(0,3)).
-measurement_raw(b3, 0, 15, pos(1,4)).
-measurement_raw(b4, 0, 15, pos(0,3)).
-measurement_raw(s2,40, 15, pos(1,3)). % 3 bananas gone
-measurement_raw(b3, 0, 16, pos(1,4)).
-measurement_raw(b4, 0, 16, pos(0,3)).
+measurement_raw(b3, 0, 12, pos(3,0)).
+measurement_raw(b4, 0, 12, pos(1,0)).
+measurement_raw(b3, 0, 13, pos(4,0)).
+measurement_raw(b4, 0, 13, pos(2,0)).
+measurement_raw(b3, 0, 14, pos(4,1)).
+measurement_raw(b4, 0, 14, pos(3,0)).
+measurement_raw(b3, 0, 15, pos(4,1)).
+measurement_raw(b4, 0, 15, pos(3,0)). % ready to steal
+measurement_raw(s2,40, 15, pos(3,1)). % 3 bananas gone
+measurement_raw(b3, 0, 16, pos(4,1)).
+measurement_raw(b4, 0, 16, pos(3,0)).
 
-measurement_raw(b3, 0, 17, pos(1,5)).
-measurement_raw(b4, 0, 17, pos(0,4)).
-measurement_raw(b3, 0, 18, pos(0,5)).
-measurement_raw(b4, 0, 18, pos(1,4)).
-measurement_raw(b3, 0, 19, pos(0,4)).
-measurement_raw(b4, 0, 19, pos(2,4)).
-measurement_raw(b3, 0, 20, pos(1,4)).
-measurement_raw(b4, 0, 20, pos(3,4)).
-measurement_raw(b3, 0, 21, pos(1,4)).
-measurement_raw(s2,50, 21, pos(1,3)). % 1 banana returned
+measurement_raw(b3, 0, 17, pos(5,1)).
+measurement_raw(b4, 0, 17, pos(4,0)).
+measurement_raw(b3, 0, 18, pos(5,0)).
+measurement_raw(b4, 0, 18, pos(4,1)).
+measurement_raw(b3, 0, 19, pos(4,0)).
+measurement_raw(b4, 0, 19, pos(4,2)).
+measurement_raw(b3, 0, 20, pos(4,1)).
+measurement_raw(b4, 0, 20, pos(4,3)).
+measurement_raw(b3, 0, 21, pos(4,1)).
+measurement_raw(s2,50, 21, pos(3,1)). % 1 banana returned
 
-measurement_raw(b3, 0, 22, pos(1,4)).
-measurement_raw(b3, 0, 23, pos(2,4)).
-measurement_raw(b3, 0, 24, pos(3,4)).
+measurement_raw(b3, 0, 22, pos(4,1)).
+measurement_raw(b3, 0, 23, pos(4,2)).
+measurement_raw(b3, 0, 24, pos(4,3)).
 measurement_raw(b3, 0, 25, pos(4,4)).
-measurement_raw(b3, 0, 26, pos(5,4)).
+measurement_raw(b3, 0, 26, pos(4,5)).
 measurement_raw(b3, 0, 27, pos(5,5)).
 
 measurement_raw(b4, 0, 21, pos(4,4)).
-measurement_raw(b4, 0, 22, pos(4,5)).
+measurement_raw(b4, 0, 22, pos(5,4)).
 measurement_raw(b4, 0, 23, pos(5,5)). % stolen 2 bananas
 
 % Use measurement for actually retrieving values
