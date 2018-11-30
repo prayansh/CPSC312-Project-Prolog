@@ -45,6 +45,14 @@ shelf_product_count(T, PN, N):- shelf_item_count(T, ID, PN, N), prop(P, name, PN
 % calc_price(product, number, price): calculates the price Price of N items of product P
 calc_price(P, N, Price):- prop(P, price, PPrice), Price is (PPrice*N).
 
+% basket_price(time, basket id, price): get the price P of all items in basket with id ID at time T
+basket_price(T, ID, P):- findall(IP, (basket_has(T, ID, I, N), calc_price(I, N, IP)), L), sumlist(L, P).
+
+%% basket_has(T, ID, P, N):- TODO.
+
+basket_has(0, b1, apple, 2).
+basket_has(0, b1, date, 1).
+
 
 % Story
 % mat a has weight 0 at time 0 at pos(0,0)
