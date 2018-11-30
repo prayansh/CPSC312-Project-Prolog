@@ -41,10 +41,10 @@ mat_id(ID):- basket(ID).
 mat_id(ID):- shelf(ID, _).
 
 % shelf_item_count(time, id, item name, number) : gets the number N of items with name IN in shelf with id ID at time T
-shelf_item_count(T, ID, IN, N):- shelf(ID, I),  measurement(ID, W, T, _), prop(I, weight, IW),  N is (W / IW), prop(I, name, IN).
+shelf_item_count(T, ID, IN, N):- in_scope(T), prop(I, name, IN), shelf(ID, I),  measurement(ID, W, T, _), prop(I, weight, IW),  N is (W / IW), prop(I, name, IN).
 
 % store_item_count(time, item name, number) : gets the number N of items with name IN remaining in the shelfs at time T
-store_item_count(T, IN, N):- findall(SN, shelf_item_count(T, _, IN, SN), L), sumlist(L, N).
+store_item_count(T, IN, N):- in_scope(T), prop(_, name, IN), findall(SN, shelf_item_count(T, _, IN, SN), L), sumlist(L, N).
 
 % calc_price(item, number, price): calculates the price P of N items of item I
 calc_price(I, N, P):- prop(I, price, IP), P is (IP*N).
@@ -87,6 +87,8 @@ checkout_time(BID, T):- in_scope(T), basket(BID), exit(Pos), findall(T0, (measur
 % checkout_price(basket id, price): the checkout price P for basket BID
 checkout_price(BID, P):- basket(BID), checkout_time(BID, CTime), ChkOut_Time is CTime, basket_price(ChkOut_Time, BID, P).
 
+checkout_basket_has(BID, IN, N):- basket(BID), checkout_time(BID, CTime), ChkOut_Time is CTime, basket_has(ChkOut_Time, BID, IN, N).
+
 %in_scope(time): time is in the application time restrictions
 in_scope(T):- findall(T0, measurement_raw(_, _, T0, _), L), min_list(L,Min), max_list(L,Max), between(Min, Max, T).
 
@@ -116,7 +118,7 @@ measurement_raw(s5, 10, 6, pos(2,3)).
 measurement_raw(b1, 30, 7, pos(1,4)).
 measurement_raw(b1, 30, 8, pos(2,4)).
 measurement_raw(b1, 30, 9, pos(3,4)).
-measurement_raw(b1, 40, 10, pos(3,4)). % get 1 carrot from s6
+measurement_raw(b1, 50, 10, pos(3,4)). % get 1 carrot from s6
 measurement_raw(s6, 40, 10, pos(3,3)).
 
 measurement_raw(b1, 40, 11, pos(3,5)).
@@ -156,12 +158,12 @@ measurement_raw(b2, 70, 50, pos(5,5)). % checkout
 
 
 
-% Showcase measurement
-measurement_c(ID, W, T, P):- in_scope(T), m(ID, W, T, P).
+% Use measurement for actually retrieving values
+measurement_c(ID, W, T, P):- in_scope(T), measurement(ID, W, T, P).
 
 % Use measurement for actually retrieving values
 measurement(ID, W, T, P):- mat_id(ID), measurement_raw(ID, W, T, P).
-measurement(ID, W, T, P):- mat_id(ID), not(measurement_raw(ID, _, T, _)), T0 is T - 1, T >= -1,  m(ID, W, T0, P).
+measurement(ID, W, T, P):- mat_id(ID), not(measurement_raw(ID, _, T, _)), T0 is T - 1, T >= -1,  measurement(ID, W, T0, P).
 
 pos_in_store(X, Y):- sizeX(XS), MAX_X is XS, sizeY(YS), MAX_Y is YS, between(0,MAX_X,X), between(0,MAX_Y,Y).
 pos_in_store(pos(X, Y)):- pos_in_store(X,Y).
