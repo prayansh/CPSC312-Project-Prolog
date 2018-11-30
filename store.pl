@@ -53,7 +53,11 @@ basket_has(0, b1, date, 1).
 % can_buy(time, basket id, shelve id): a person with basket BID can buy from the shelf SID at time T
 can_buy(T, BID, SID):- measurement(BID, _, T, BP), measurement(SID, _, T, SP), m_distance(BP,SP,MD), MD is 1.
 
+% m_distance(position 1, position 2, manhattan distance): manhattan distance MD from position 1 pos(X1,Y1) to position 2 pos(X2,Y2)
 m_distance(pos(X1,Y1),pos(X2,Y2),MD):- X is (X1-X2), abs(X,XD), Y is (Y1-Y2), abs(Y,YD), MD is (XD + YD).
+
+% removed_from_shelf(time, shelf id, item name, number of items): N items woth name IN were removed from shelf with id SID at time T
+removed_from_shelf(T, SID, IN, N):- T>0, T0 is T - 1, shelf_item_count(T, SID, IN, SN), shelf_item_count(T0, SID, IN, SN0), N is (SN0-SN), N>0.
 
 
 % Story
