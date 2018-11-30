@@ -68,9 +68,10 @@ calc_weight(I, N, W):- prop(I, weight, IW), W is (IW*N).
 % weight_change(time, basket id, weight): basket with id BID had a change of weight W at time T
 weight_change(T, BID, W):- T>0, T0 is T - 1, measurement(BID, BW, T, _), measurement(BID, BW0, T0, _), W is (BW-BW0).
 
-% grabbed(time, basket id, shelf id, item name, number of items): 
+% grabbed(time, basket id, shelf id, item name, number of items): basket with is BID grabbed N items with name IN from shelf with id SID at time T
 grabbed(T, BID, SID, IN, N):- removed_from_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC>0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W). 
 
+% grabbed(time, basket id, shelf id, item name, number of items): basket with is BID returned N items with name IN from shelf with id SID at time T
 returned(T, BID, SID, IN, N):- returned_to_shelf(T, SID, IN, N), calc_weight(I, N, W), weight_change(T, BID, WC), WC<0, prop(I, name, IN), can_buy(T, BID, SID), abs(WC,W).
 
 % Story
