@@ -33,17 +33,14 @@ shelf(s6, carrot).
 % predicates
 item(N, W, P) :- prop(X, name, N), prop(X, weight, W), prop(X, price, P).
 
-% shelf_item_count(time, id, number) : gets the number of items in shelf with id ID at time T 
-shelf_item_count(T, ID, PN, N):- shelf(ID, P),  measurement(ID, W, T, _), prop(P, weight, PW),  N is (W / PW), prop(P, name, PN).
+% shelf_item_count(time, id, item name, number) : gets the number N of items with name IN in shelf with id ID at time T 
+shelf_item_count(T, ID, IN, N):- shelf(ID, I),  measurement(ID, W, T, _), prop(I, weight, IW),  N is (W / IW), prop(I, name, IN).
 
-% store_product_count(time, product name, number) : gets the number N of products with product name PN remaining in the shelfs at time T
-store_product_count(T, PN, N):- findall(SN, shelf_product_count(T, PN, SN), L), sumlist(L, N). 
+% store_item_count(time, item name, number) : gets the number N of items with name IN remaining in the shelfs at time T
+store_item_count(T, IN, N):- findall(SN, shelf_item_count(T, _, IN, SN), L), sumlist(L, N). 
 
-% store_product_count(time, product name, number) : helper for store_product_count
-shelf_product_count(T, PN, N):- shelf_item_count(T, ID, PN, N), prop(P, name, PN), shelf(ID, P).
-
-% calc_price(product, number, price): calculates the price Price of N items of product P
-calc_price(P, N, Price):- prop(P, price, PPrice), Price is (PPrice*N).
+% calc_price(item, number, price): calculates the price P of N items of item I
+calc_price(I, N, P):- prop(I, price, IP), P is (IP*N).
 
 % basket_price(time, basket id, price): get the price P of all items in basket with id ID at time T
 basket_price(T, ID, P):- findall(IP, (basket_has(T, ID, I, N), calc_price(I, N, IP)), L), sumlist(L, P).
