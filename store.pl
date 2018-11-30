@@ -33,6 +33,9 @@ shelf(s6, carrot).
 % predicates
 item(N, W, P) :- prop(X, name, N), prop(X, weight, W), prop(X, price, P).
 
+% shelf_item_count(time, id, number) : gets the number of items in shelf with id ID at time T 
+shelf_item_count(T, ID, N):- shelf(ID, P),  measurement(ID, W, T, _), prop(P, weight, PW),  N is (W / PW).
+
 % Story
 % mat a has weight 0 at time 0 at pos(0,0)
 % measurement_raw(id, weight, time, position)
@@ -66,9 +69,6 @@ measurement_raw(b1, 40, 12, pos(4,5)).
 measurement_raw(b1, 40, 13, pos(5,5)).
 
 measurement_raw(_, _, -1, pos(-1,-1)).
-% measurement(ID, W, 0, P) 
-
-measurement_raw(b2, 40, 5, pos(5,5)).
 
 
 
