@@ -37,6 +37,9 @@ basket(b2).
 % predicates
 item(N, W, P) :- prop(X, name, N), prop(X, weight, W), prop(X, price, P).
 
+mat_id(ID):- basket(ID).
+mat_id(ID):- shelf(ID, _).
+
 % shelf_item_count(time, id, item name, number) : gets the number N of items with name IN in shelf with id ID at time T
 shelf_item_count(T, ID, IN, N):- shelf(ID, I),  measurement(ID, W, T, _), prop(I, weight, IW),  N is (W / IW), prop(I, name, IN).
 
@@ -121,7 +124,7 @@ measurement_raw(b1, 40, 12, pos(4,5)).
 measurement_raw(b1, 40, 13, pos(5,5)). % checkout
 
 % User 2 story
-measurement_raw(b2, 0, 0, pos(-1,-1)).
+%% measurement_raw(b2, 0, 0, pos(-1,-1)).
 measurement_raw(b2, 0, 10, pos(0,0)).
 measurement_raw(b2, 0, 11, pos(0,1)).
 measurement_raw(b2, 0, 12, pos(0,2)).
@@ -148,12 +151,14 @@ measurement_raw(b2, 70, 27, pos(5,3)).
 measurement_raw(b2, 70, 28, pos(5,4)).
 measurement_raw(b2, 70, 29, pos(5,5)). % checkout
 
+measurement_raw(b2, 70, 50, pos(5,5)). % checkout
 
-measurement_raw(_, _, -1, pos(-1,-1)).
+
+
 
 % Use measurement for actually retrieving values
-measurement(X, W, T, P):- measurement_raw(X, W, T, P).
-measurement(X, W, T, P):- not(measurement_raw(X, _, T, _)), T0 is T - 1, T >= -1,  measurement(X, W, T0, P).
+measurement(ID, W, T, P):- mat_id(ID), measurement_raw(ID, W, T, P).
+measurement(ID, W, T, P):- mat_id(ID), not(measurement_raw(ID, _, T, _)), T0 is T - 1, T >= -1,  measurement(ID, W, T0, P).
 
 pos_in_store(X, Y):- sizeX(XS), MAX_X is XS, sizeY(YS), MAX_Y is YS, between(0,MAX_X,X), between(0,MAX_Y,Y).
 pos_in_store(pos(X, Y)):- pos_in_store(X,Y).
