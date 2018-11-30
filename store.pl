@@ -156,9 +156,12 @@ measurement_raw(b2, 70, 50, pos(5,5)). % checkout
 
 
 
+% Showcase measurement
+measurement_c(ID, W, T, P):- in_scope(T), m(ID, W, T, P).
+
 % Use measurement for actually retrieving values
 measurement(ID, W, T, P):- mat_id(ID), measurement_raw(ID, W, T, P).
-measurement(ID, W, T, P):- mat_id(ID), not(measurement_raw(ID, _, T, _)), T0 is T - 1, T >= -1,  measurement(ID, W, T0, P).
+measurement(ID, W, T, P):- mat_id(ID), not(measurement_raw(ID, _, T, _)), T0 is T - 1, T >= -1,  m(ID, W, T0, P).
 
 pos_in_store(X, Y):- sizeX(XS), MAX_X is XS, sizeY(YS), MAX_Y is YS, between(0,MAX_X,X), between(0,MAX_Y,Y).
 pos_in_store(pos(X, Y)):- pos_in_store(X,Y).
