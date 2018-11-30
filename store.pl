@@ -98,31 +98,55 @@ measurement_raw(s4, 150, 0, pos(3,2)). % 5 dates
 measurement_raw(s5, 30, 0, pos(2,3)). % 3 apples
 measurement_raw(s6, 60, 0, pos(3,3)). % 3 carrots
 
-% User u has entered
-measurement_raw(b1, 0, 0, pos(0,0)). % user’s mat_id=u
+% User 1 story
+measurement_raw(b1, 0, 0, pos(0,0)). % user’s mat_id=b1
 measurement_raw(b1, 0, 1, pos(1,0)).
 measurement_raw(b1, 0, 2, pos(1,1)).
-measurement_raw(b1, 10, 3, pos(1,1)). % get 1 apple from a
+measurement_raw(b1, 10, 3, pos(1,1)). % get 1 apple from s1
 measurement_raw(s1, 30, 3, pos(2,1)).
 
 measurement_raw(b1, 10, 4, pos(1,2)).
 measurement_raw(b1, 10, 5, pos(1,3)).
-measurement_raw(b1, 30, 6, pos(1,3)). % get 2 apple from e
+measurement_raw(b1, 30, 6, pos(1,3)). % get 2 apple from s5
 measurement_raw(s5, 10, 6, pos(2,3)).
 
 measurement_raw(b1, 30, 7, pos(1,4)).
 measurement_raw(b1, 30, 8, pos(2,4)).
 measurement_raw(b1, 30, 9, pos(3,4)).
-measurement_raw(b1, 40, 10, pos(3,4)).
-measurement_raw(s6, 50, 10, pos(3,3)).
+measurement_raw(b1, 40, 10, pos(3,4)). % get 1 carrot from s6
+measurement_raw(s6, 40, 10, pos(3,3)).
 
 measurement_raw(b1, 40, 11, pos(3,5)).
 measurement_raw(b1, 40, 12, pos(4,5)).
-measurement_raw(b1, 40, 13, pos(5,5)).
+measurement_raw(b1, 40, 13, pos(5,5)). % checkout
 
-measurement_raw(b2, 0, 0, pos(0,0)).
-measurement_raw(b2, 0, 3, pos(2,2)).
-measurement_raw(b2, 0, 7, pos(5,5)).
+% User 2 story
+measurement_raw(b2, 0, 10, pos(0,0)).
+measurement_raw(b2, 0, 11, pos(0,1)).
+measurement_raw(b2, 0, 12, pos(0,2)).
+measurement_raw(b2, 0, 13, pos(1,2)).
+measurement_raw(b2, 40, 14, pos(1,2)). % get 2 carrots from s3
+measurement_raw(s3, 60, 14, pos(2,2)).
+
+measurement_raw(b2, 40, 15, pos(1,3)).
+measurement_raw(b2, 40, 16, pos(1,4)).
+measurement_raw(b2, 40, 17, pos(2,4)).
+measurement_raw(b2, 40, 18, pos(3,4)).
+measurement_raw(b2, 40, 19, pos(4,4)).
+measurement_raw(b2, 40, 20, pos(4,3)).
+measurement_raw(b2, 40, 21, pos(4,2)).
+measurement_raw(b2, 100, 22, pos(4,2)). % get 2 dates from s4
+measurement_raw(s4, 90, 22, pos(3,2)).
+
+measurement_raw(b2, 100, 23, pos(4,3)).
+measurement_raw(b2, 100, 24, pos(4,2)).
+measurement_raw(b2, 70, 25, pos(4,2)). % put back 1 date to s4
+measurement_raw(s4, 120, 25, pos(3,2)).
+measurement_raw(b2, 70, 26, pos(5,2)).
+measurement_raw(b2, 70, 27, pos(5,3)).
+measurement_raw(b2, 70, 28, pos(5,4)).
+measurement_raw(b2, 70, 29, pos(5,5)). % checkout
+
 
 measurement_raw(_, _, -1, pos(-1,-1)).
 
