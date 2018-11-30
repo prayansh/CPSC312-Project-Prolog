@@ -42,6 +42,8 @@ store_product_count(T, PN, N):- findall(SN, shelf_product_count(T, PN, SN), L), 
 % store_product_count(time, product name, number) : helper for store_product_count
 shelf_product_count(T, PN, N):- shelf_item_count(T, ID, PN, N), prop(P, name, PN), shelf(ID, P).
 
+% calc_price(product, number, price): calculates the price Price of N items of product P
+calc_price(P, N, Price):- prop(P, price, PPrice), Price is (PPrice*N).
 
 
 % Story
